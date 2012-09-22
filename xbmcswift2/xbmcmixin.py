@@ -29,6 +29,9 @@ class XBMCMixin(object):
 
         self.request
 
+    # optional 
+    self.info_type: should be in ['video', 'music', 'pictures']
+
     _end_of_directory = False
     _memoized_cache = None
     _unsynced_caches = None
@@ -128,6 +131,8 @@ class XBMCMixin(object):
         _items = []
         for item in items:
             if not hasattr(item, 'as_xbmc_listitem'):
+                if 'info_type' not in item.keys():
+                    item['info_type'] = playlist
                 item = xbmcswift2.ListItem.from_dict(**item)
             _items.append(item)
             selected_playlist.add(item.get_path(), item.as_xbmc_listitem())
@@ -170,6 +175,8 @@ class XBMCMixin(object):
 
     def play_video(self, item, player=xbmc.PLAYER_CORE_DVDPLAYER):
         if not isinstance(item, xbmcswift2.ListItem):
+            if 'info_type' not in item.keys():
+                item['info_type'] = 'video'
             item = xbmcswift2.ListItem.from_dict(**item)
         item.set_played(True)
         xbmc.Player(player).play(item.get_path, item)
@@ -188,11 +195,14 @@ class XBMCMixin(object):
         '''
         # For each item if it is not already a list item, we need to create one
         _items = []
+        info_type = self.info_type if hasattr(self, 'infotype') else 'video'
 
         # Create ListItems for anything that is not already an instance of
         # ListItem
         for item in items:
             if not isinstance(item, xbmcswift2.ListItem):
+                if 'info_type' not in item.keys():
+                    item['info_type'] = info_type
                 item = xbmcswift2.ListItem.from_dict(**item)
             _items.append(item)
 

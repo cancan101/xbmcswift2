@@ -64,7 +64,7 @@ class Plugin(XBMCMixin):
                      testing.
     '''
 
-    def __init__(self, name, addon_id=None, filepath=None):
+    def __init__(self, name, addon_id=None, filepath=None, info_type=None):
         self._name = name
         self._routes = []
         self._view_functions = {}
@@ -75,6 +75,15 @@ class Plugin(XBMCMixin):
         elif xbmcswift2.CLI_MODE:
             self._addon = xbmcaddon.Addon()
         self._addon_id = addon_id or self._addon.getAddonInfo('id')
+
+        self._info_type = info_type
+        if not self._info_type:
+            types = {
+                'video': 'video',
+                'audio': 'music',
+                'image': 'pictures',
+            }
+            self._info_type = types.get(self._addon_id.split('.')[1], 'video')
 
         # Keeps track of the added list items
         self._current_items = []
@@ -106,6 +115,10 @@ class Plugin(XBMCMixin):
             strings_fn = os.path.join(addon_dir, 'resources', 'language',
                                       'English', 'strings.xml')
             utils.load_addon_strings(self._addon, strings_fn)
+
+    @property
+    def info_type(self):
+        return self._info_type
 
     @property
     def log(self):
