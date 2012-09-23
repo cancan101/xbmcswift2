@@ -133,8 +133,12 @@ class XBMCMixin(object):
         _items = []
         for item in items:
             if not hasattr(item, 'as_xbmc_listitem'):
-                if 'info_type' not in item.keys():
-                    item['info_type'] = playlist
+                if 'info_type' in item.keys():
+                    log.warning('info_type key has no affect for playlist '
+                                'items as the info_type is inferred from the '
+                                'playlist type.')
+                # info_type has to be same as the playlist type
+                item['info_type'] = playlist
                 item = xbmcswift2.ListItem.from_dict(**item)
             _items.append(item)
             selected_playlist.add(item.get_path(), item.as_xbmc_listitem())

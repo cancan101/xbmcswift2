@@ -186,28 +186,75 @@ class TestAddToPlaylist(TestCase):
         # Verify playlists
         self.assertRaises(AssertionError, self.m.add_to_playlist, [], 'invalid_playlist')
 
-        # Verify vidoe and music work
+        # Verify video and music work
         self.m.add_to_playlist([])
         self.m.add_to_playlist([], 'video')
         self.m.add_to_playlist([], 'music')
 
-    def test_return_values(self):
+    @patch('xbmcswift2.ListItem', wraps=ListItem)
+    def test_return_values(self, MockListItem):
         # Verify dicts are transformed into listitems
         dict_items = [
             {'label': 'Grape Stomp'},
             {'label': 'Boom Goes the Dynamite'},
         ]
         items = self.m.add_to_playlist(dict_items)
+
+        # Verify from_dict was called properly, defaults to info_type=video
+        calls = [
+            call(label='Grape Stomp', info_type='video'),
+            call(label='Boom Goes the Dynamite', info_type='video'),
+        ]
+        self.assertEqual(MockListItem.from_dict.call_args_list, calls)
+
+
+        ## Verify with playlist=music
+        MockListItem.from_dict.reset_mock()
+
+        dict_items = [
+            {'label': 'Grape Stomp'},
+            {'label': 'Boom Goes the Dynamite'},
+        ]
+        items = self.m.add_to_playlist(dict_items, 'music')
+
+        # Verify from_dict was called properly, defaults to info_type=video
+        calls = [
+            call(label='Grape Stomp', info_type='music'),
+            call(label='Boom Goes the Dynamite', info_type='music'),
+        ]
+        self.assertEqual(MockListItem.from_dict.call_args_list, calls)
+
+        ## Verify an item's info_dict key is not used
+        MockListItem.from_dict.reset_mock()
+
+        dict_items = [
+            {'label': 'Grape Stomp', 'info_type': 'music'},
+            {'label': 'Boom Goes the Dynamite', 'info_type': 'music'},
+        ]
+        items = self.m.add_to_playlist(dict_items, 'video')
+
+        # Verify from_dict was called properly, defaults to info_type=video
+        calls = [
+            call(label='Grape Stomp', info_type='video'),
+            call(label='Boom Goes the Dynamite', info_type='video'),
+        ]
+        self.assertEqual(MockListItem.from_dict.call_args_list, calls)
+
+        # verify ListItems were created correctly
         for item, returned_item in zip(dict_items, items):
             assert isinstance(returned_item, ListItem)
             self.assertEqual(item['label'], returned_item.get_label())
 
-        # Verify listitems are unchange
+        # Verify listitems are unchanged
+        MockListItem.from_dict.reset_mock()
+
         listitems = [
             ListItem('Grape Stomp'),
             ListItem('Boom Goes the Dyanmite'),
         ]
         items = self.m.add_to_playlist(listitems)
+
+        self.assertFalse(MockListItem.from_dict.called)
         for item, returned_item in zip(listitems, items):
             self.assertEqual(item, returned_item)
 
