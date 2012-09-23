@@ -180,12 +180,12 @@ class XBMCMixin(object):
         return [item]
 
     def play_video(self, item, player=xbmc.PLAYER_CORE_DVDPLAYER):
-        if not isinstance(item, xbmcswift2.ListItem):
+        if not hasattr(item, 'as_xbmc_listitem'):
             if 'info_type' not in item.keys():
                 item['info_type'] = 'video'
             item = xbmcswift2.ListItem.from_dict(**item)
         item.set_played(True)
-        xbmc.Player(player).play(item.get_path, item)
+        xbmc.Player(player).play(item.get_path(), item.as_xbmc_listitem())
         return [item]
 
     def add_items(self, items):

@@ -1,9 +1,11 @@
 import os
 import tempfile
+import xbmcswift2
 from unittest import TestCase
 from mock import Mock, patch, call
 from nose.plugins.skip import SkipTest
 from xbmcswift2.xbmcmixin import XBMCMixin
+from xbmcswift2 import xbmc
 from xbmcswift2.plugin import Plugin
 from xbmcswift2.common import Modes
 from xbmcswift2.listitem import ListItem
@@ -78,8 +80,38 @@ class TestXBMCMixin(TestCase):
     def test_set_resolved_url(self):
         raise SkipTest('Test not implemented.')
 
-    def test_play_video(self):
-        raise SkipTest('Test not implemented.')
+    @patch.object(xbmc, 'Player')
+    @patch('xbmcswift2.ListItem', wraps=xbmcswift2.ListItem)
+    def test_play_video_dict(self, WrappedListItem, MockPlayer):
+        plugin = MixedIn(cache_path=tempfile.mkdtemp(),
+                         addon=Mock(),
+                         added_items=[],
+                         request=Mock(),
+                         info_type='pictures',
+                         handle=0,
+                         )
+
+        item = {'label': 'The Ultimate Showdown', 'path': 'http://example.com/video.mp4'}
+        returned = plugin.play_video(item)
+        returned_item = returned[0]
+        self.assertTrue(returned_item.get_played())
+
+        WrappedListItem.from_dict.assert_called_with(
+            label='The Ultimate Showdown',
+            info_type='video',
+            path='http://example.com/video.mp4')
+        self.assertTrue(MockPlayer().play.called)
+
+        # Check that the second arg to play was an instance of xbmc listitem
+        # and not xbmcswift2.ListItem
+        item_arg = MockPlayer().play.call_args[0][1]
+        self.assertTrue(isinstance(item_arg, xbmcswift2.xbmcgui.ListItem))
+
+        # TODO: Implement ListItem.__eq__
+        #MockPlayer().play.assert_called_with('http://example.com/video.mp4', ListItem.from_dict(**item))
+
+    def test_play_video_listitem(self):
+        pass
 
     def test_end_of_directory(self):
         raise SkipTest('Test not implemented.')
