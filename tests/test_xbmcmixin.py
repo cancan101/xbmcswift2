@@ -1,6 +1,7 @@
 import os
+import tempfile
 from unittest import TestCase
-from mock import Mock, patch
+from mock import Mock, patch, call
 from nose.plugins.skip import SkipTest
 from xbmcswift2.xbmcmixin import XBMCMixin
 from xbmcswift2.plugin import Plugin
@@ -21,6 +22,13 @@ class TestMixedIn(XBMCMixin):
     addon = Mock()
     added_items = []
     handle = 0
+
+class MixedIn(XBMCMixin):
+
+    def __init__(self, **kwargs):
+        for attr_name, attr_value in kwargs.items():
+            setattr(self, attr_name, attr_value)
+
 
 class TestXBMCMixin(TestCase):
 
@@ -73,14 +81,95 @@ class TestXBMCMixin(TestCase):
     def test_play_video(self):
         raise SkipTest('Test not implemented.')
 
-    def test_add_items(self):
-        raise SkipTest('Test not implemented.')
-
     def test_end_of_directory(self):
         raise SkipTest('Test not implemented.')
 
     def test_finish(self):
         raise SkipTest('Test not implemented.')
+
+
+class TestAddItems(TestCase):
+
+    @patch('xbmcswift2.ListItem.from_dict')
+    @patch('xbmcswift2.xbmcplugin.addDirectoryItems')
+    def test_add_items(self, addDirectoryItems, fromDict):
+        plugin = MixedIn(cache_path=tempfile.mkdtemp(),
+                         addon=Mock(),
+                         added_items=[],
+                         request=Mock(),
+                         info_type='pictures',
+                         handle=0,
+                         )
+        items = [
+            {'label': 'Course 1', 'path': 'plugin.image.test/foo'},
+            {'label': 'Course 2', 'path': 'plugin.image.test/bar'},
+        ]
+        returned = plugin.add_items(items)
+
+        # TODO: Assert actual arguments passed to the addDirectoryItems call
+        assert addDirectoryItems.called 
+        calls = [
+            call(label='Course 1', path='plugin.image.test/foo', info_type='pictures'),
+            call(label='Course 2', path='plugin.image.test/bar', info_type='pictures'),
+        ]
+        fromDict.assert_has_calls(calls)
+
+        # TODO: Currently ListItems don't implement __eq__
+        #list_items = [ListItem.from_dict(**item) for item in items]
+        #self.assertEqual(returned, list_items)
+
+    @patch('xbmcswift2.ListItem.from_dict')
+    @patch('xbmcswift2.xbmcplugin.addDirectoryItems')
+    def test_add_items_no_info_type(self, addDirectoryItems, fromDict):
+        plugin = MixedIn(cache_path=tempfile.mkdtemp(),
+                         addon=Mock(),
+                         added_items=[],
+                         request=Mock(),
+                         handle=0,
+                         )
+        items = [
+            {'label': 'Course 1', 'path': 'plugin.image.test/foo'}
+        ]
+        returned = plugin.add_items(items)
+
+        # TODO: Assert actual arguments passed to the addDirectoryItems call
+        assert addDirectoryItems.called 
+        calls = [
+            call(label='Course 1', path='plugin.image.test/foo', info_type='video'),
+        ]
+        fromDict.assert_has_calls(calls)
+
+        # TODO: Currently ListItems don't implement __eq__
+        #list_items = [ListItem.from_dict(**item) for item in items]
+        #self.assertEqual(returned, list_items)
+
+    @patch('xbmcswift2.ListItem.from_dict')
+    @patch('xbmcswift2.xbmcplugin.addDirectoryItems')
+    def test_add_items_item_specific_info_type(self, addDirectoryItems, fromDict):
+        plugin = MixedIn(cache_path=tempfile.mkdtemp(),
+                         addon=Mock(),
+                         added_items=[],
+                         request=Mock(),
+                         handle=0,
+                         info_type='pictures',
+                         )
+        items = [
+            {'label': 'Course 1', 'path': 'plugin.image.test/foo', 'info_type': 'music'}
+        ]
+        returned = plugin.add_items(items)
+
+        # TODO: Assert actual arguments passed to the addDirectoryItems call
+        assert addDirectoryItems.called 
+        calls = [
+            call(label='Course 1', path='plugin.image.test/foo', info_type='music'),
+        ]
+        fromDict.assert_has_calls(calls)
+
+        # TODO: Currently ListItems don't implement __eq__
+        #list_items = [ListItem.from_dict(**item) for item in items]
+        #self.assertEqual(returned, list_items)
+
+
 
 class TestAddToPlaylist(TestCase):
     @patch('xbmcswift2.xbmc.Playlist')

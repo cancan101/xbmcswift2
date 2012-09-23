@@ -29,6 +29,8 @@ class XBMCMixin(object):
 
         self.request
 
+        self.handle
+
     # optional 
     self.info_type: should be in ['video', 'music', 'pictures']
 
@@ -195,7 +197,7 @@ class XBMCMixin(object):
         '''
         # For each item if it is not already a list item, we need to create one
         _items = []
-        info_type = self.info_type if hasattr(self, 'infotype') else 'video'
+        info_type = self.info_type if hasattr(self, 'info_type') else 'video'
 
         # Create ListItems for anything that is not already an instance of
         # ListItem
