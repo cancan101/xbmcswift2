@@ -6,15 +6,17 @@
 Welcome to XBMC Swift's documentation!
 ======================================
 
-Welcome to the documentation for xbmcswift. This documentation is divided into
+Welcome to the documentation for xbmcswift2. This documentation is divided into
 several parts. If you are new, you should start with the :ref:`installation`
 and then move on to :ref:`quickstart`. If you would prefer a more detailed
-walkthrough, try the :ref:`tutorial`. For a list of everything, check out the
-complete :ref:`api` reference. For more specific examples, check out
+walkthrough, try the :ref:`tutorial`.
+
+To get a deeper understanding of xbmcswift2, check out :ref:`routing` and the
+complete :ref:`api` reference. For specific code samples, check out
 :ref:`patterns`. If you are upgrading from xbmcswift, check out the
 :ref:`upgrading` page.
 
-XBMC Swift doesn't rely on any external dependencies to get started. However,
+xbmcswift2 doesn't rely on any external dependencies to get started. However,
 when writing plugins I like to use http://BeautifulSoup.org. Also, when it
 comes to advanced testing of plugins, I like to use http://nosetests.org.
 
@@ -31,6 +33,14 @@ Basic Info
     quickstart
     tutorial
     commandline
+
+Advanced User Guide
+-------------------
+
+.. toctree::
+    :maxdepth: 2
+
+    routing
     patterns
 
 
