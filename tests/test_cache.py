@@ -1,6 +1,6 @@
 import os
 import pickle
-from xbmcswift2.cache import Cache, TimedCache
+from xbmcswift2.cache import _Cache, TimedCache
 from unittest import TestCase
 from datetime import timedelta
 import time
@@ -18,13 +18,13 @@ class TestCache(TestCase):
     def test_pickle(self):
         filename = '/tmp/testdict.pickle'
         remove(filename)
-        cache = Cache(filename, file_format='pickle')
+        cache = _Cache(filename, file_format='pickle')
 
         cache['name'] = 'jon'
         cache.update({'answer': 42})
         cache.close()
 
-        cache2 = Cache(filename, file_format='pickle')
+        cache2 = _Cache(filename, file_format='pickle')
         self.assertEqual(cache, cache2)
         self.assertEqual(2, len(cache2.items()))
         self.assertTrue('name' in cache2.keys())
@@ -37,13 +37,13 @@ class TestCache(TestCase):
     def test_csv(self):
         filename = '/tmp/testdict.csv'
         remove(filename)
-        cache = Cache(filename, file_format='csv')
+        cache = _Cache(filename, file_format='csv')
 
         cache['name'] = 'jon'
         cache.update({'answer': '42'})
         cache.close()
 
-        cache2 = Cache(filename, file_format='csv')
+        cache2 = _Cache(filename, file_format='csv')
         self.assertEqual(sorted(cache.items()), sorted(cache2.items()))
         self.assertEqual(2, len(cache2.items()))
         self.assertTrue('name' in cache2.keys())
@@ -56,13 +56,13 @@ class TestCache(TestCase):
     def test_json(self):
         filename = '/tmp/testdict.json'
         remove(filename)
-        cache = Cache(filename, file_format='json')
+        cache = _Cache(filename, file_format='json')
 
         cache['name'] = 'jon'
         cache.update({'answer': '42'})
         cache.close()
 
-        cache2 = Cache(filename, file_format='json')
+        cache2 = _Cache(filename, file_format='json')
         self.assertEqual(sorted(cache.items()), sorted(cache2.items()))
         self.assertEqual(2, len(cache2.items()))
         self.assertTrue('name' in cache2.keys())
