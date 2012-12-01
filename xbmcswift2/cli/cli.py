@@ -74,3 +74,6 @@ def main():
     # Since we are calling a specific comamnd's manager, we no longer need the
     # actual command in sys.argv so we slice from position 1
     manager.run(opts, args[1:])
+
+if __name__ == '__main__':
+    main()
