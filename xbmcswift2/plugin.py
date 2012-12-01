@@ -15,6 +15,7 @@ import xbmcswift2
 from urllib import urlencode
 from functools import wraps
 from optparse import OptionParser
+from types import FunctionType
 try:
     from urlparse import parse_qs
 except ImportError:
@@ -272,6 +273,9 @@ class Plugin(XBMCMixin):
         Raises AmbiguousUrlException if there is more than one possible
         view for the given endpoint name.
         '''
+        if type(endpoint) is FunctionType:
+            endpoint = endpoint.__name__
+            
         if endpoint not in self._view_functions.keys():
             raise NotFoundException, ('%s doesn\'t match any known patterns.' %
                                       endpoint)
